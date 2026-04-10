@@ -1,0 +1,777 @@
+/* ── 리셋 & 기본 ─────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Slack 팔레트 */
+  --sidebar-bg: #3f0e40;
+  --sidebar-hover: #350d36;
+  --sidebar-active-bg: #1164a3;
+  --sidebar-text: #cfc3cf;
+  --sidebar-text-muted: #9e869e;
+  --sidebar-text-active: #ffffff;
+  --sidebar-section-label: #9e869e;
+
+  /* 채팅 영역 */
+  --chat-bg: #ffffff;
+  --header-bg: #ffffff;
+  --header-border: #e8e8e8;
+  --input-bg: #ffffff;
+  --input-border: #c6c6c6;
+  --input-focus: #1264a3;
+
+  /* 메시지 */
+  --msg-hover: #f8f8f8;
+  --msg-me-bg: #1164a3;
+  --msg-me-text: #ffffff;
+  --msg-peer-bg: #f0f0f0;
+  --msg-peer-text: #1d1c1d;
+  --msg-system-text: #616061;
+  --msg-name-me: #1164a3;
+  --msg-name-peer: #e01e5a;
+  --msg-time: #888888;
+
+  /* 상태 dot */
+  --dot-online: #2bac76;
+  --dot-busy: #ecb22e;
+  --dot-offline: #e01e5a;
+  --dot-idle: #888888;
+
+  /* 공통 */
+  --radius: 4px;
+  --radius-lg: 8px;
+  --transition: 0.15s ease;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #1d1c1d;
+}
+
+body {
+  background: var(--sidebar-bg);
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+}
+
+/* ── 스크롤바 ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+
+/* ── 앱 레이아웃 ─────────────────────────────────────────── */
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--chat-bg);
+  border-radius: 8px 0 0 8px;
+  overflow: hidden;
+}
+
+/* ── 사이드바 ─────────────────────────────────────────────── */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  color: var(--sidebar-text);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar__header {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar__workspace-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--sidebar-text-active);
+  letter-spacing: -0.3px;
+}
+
+.sidebar__logo {
+  font-size: 20px;
+}
+
+.sidebar__nav {
+  flex: 1;
+  padding: 8px 0;
+}
+
+.sidebar__section-label {
+  padding: 16px 16px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--sidebar-section-label);
+  cursor: default;
+}
+
+.sidebar__section-label--top {
+  margin-top: 8px;
+}
+
+.sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--sidebar-text);
+  transition: background var(--transition);
+  margin: 1px 8px;
+}
+
+.sidebar__item:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.sidebar__item--active {
+  background: var(--sidebar-active-bg) !important;
+  color: var(--sidebar-text-active);
+}
+
+.sidebar__item-icon {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--sidebar-text-muted);
+}
+
+.sidebar__item--active .sidebar__item-icon {
+  color: var(--sidebar-text-active);
+}
+
+.sidebar__room-info {
+  margin: 8px 8px 0;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.07);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--sidebar-active-bg);
+}
+
+.sidebar__room-id-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sidebar-text-muted);
+  margin-bottom: 2px;
+}
+
+.sidebar__room-id-value {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+}
+
+.sidebar__role-badge {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--sidebar-text);
+}
+
+.sidebar__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+}
+
+.sidebar__status-text {
+  font-size: 13px;
+  color: var(--sidebar-text);
+}
+
+.sidebar__footer {
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar__disconnect-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(224, 30, 90, 0.15);
+  border: 1px solid rgba(224, 30, 90, 0.3);
+  border-radius: var(--radius);
+  color: #e9829c;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background var(--transition);
+  text-align: left;
+}
+
+.sidebar__disconnect-btn:hover {
+  background: rgba(224, 30, 90, 0.25);
+}
+
+/* ── 상태 dot ─────────────────────────────────────────────── */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot--online  { background: var(--dot-online); box-shadow: 0 0 4px var(--dot-online); }
+.status-dot--busy    { background: var(--dot-busy); }
+.status-dot--offline { background: var(--dot-offline); }
+.status-dot--idle    { background: var(--dot-idle); }
+
+/* ── 로비 ─────────────────────────────────────────────────── */
+.lobby {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f4f0;
+  padding: 24px;
+}
+
+.lobby__card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.lobby__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.lobby__title-icon {
+  font-size: 32px;
+}
+
+.lobby__title h1 {
+  font-size: 26px;
+  font-weight: 900;
+  color: #1d1c1d;
+  letter-spacing: -0.5px;
+}
+
+.lobby__subtitle {
+  font-size: 14px;
+  color: #616061;
+  margin-bottom: 28px;
+}
+
+.lobby__section {
+  margin-bottom: 8px;
+}
+
+.lobby__section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #616061;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.lobby__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: #b0b0b0;
+  font-size: 13px;
+}
+
+.lobby__divider::before,
+.lobby__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+}
+
+.lobby__join-row {
+  display: flex;
+  gap: 8px;
+}
+
+.lobby__join-row .input {
+  flex: 1;
+}
+
+/* ── 버튼 ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition), opacity var(--transition);
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: #007a5a;
+  color: #fff;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #148567;
+}
+
+.btn--secondary {
+  background: #1264a3;
+  color: #fff;
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: #0b4c8c;
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn--copy {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.85);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.btn--copy:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.chat-header .btn--copy {
+  border-color: #c6c6c6;
+  color: #616061;
+  background: #f8f8f8;
+}
+
+.chat-header .btn--copy:hover {
+  background: #efefef;
+}
+
+.btn--send {
+  background: #007a5a;
+  color: #fff;
+  padding: 8px 14px;
+  min-height: 36px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.btn--send:hover:not(:disabled) {
+  background: #148567;
+}
+
+/* ── 인풋 ─────────────────────────────────────────────────── */
+.input {
+  padding: 9px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  outline: none;
+  transition: border-color var(--transition);
+  background: #fff;
+  color: #1d1c1d;
+}
+
+.input:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 2px rgba(18, 100, 163, 0.15);
+}
+
+/* ── 채팅 레이아웃 ────────────────────────────────────────── */
+.chat-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 채팅 헤더 */
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  min-height: 50px;
+  flex-shrink: 0;
+}
+
+.chat-header__left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-header__hash {
+  font-size: 18px;
+  font-weight: 700;
+  color: #616061;
+}
+
+.chat-header__room-name {
+  font-size: 15px;
+  font-weight: 900;
+  color: #1d1c1d;
+}
+
+.chat-header__room-id {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  background: #f8f8f8;
+  border: 1px solid #e8e8e8;
+  border-radius: 3px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #616061;
+  letter-spacing: 0.5px;
+}
+
+.chat-header__right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.chat-header__status {
+  font-size: 12px;
+  color: #757575;
+}
+
+/* 채팅 바디 */
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--chat-bg);
+}
+
+/* ── 채팅 알림 (대기/연결중/끊김) ────────────────────────── */
+.chat-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.chat-notice__icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.chat-notice__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d1c1d;
+}
+
+.chat-notice__desc {
+  font-size: 14px;
+  color: #616061;
+}
+
+.chat-notice__room-id {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #3f0e40;
+  border-radius: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 4px;
+  margin-top: 4px;
+}
+
+/* ── 메시지 ───────────────────────────────────────────────── */
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.messages__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 60px 24px;
+  color: #616061;
+  font-size: 15px;
+}
+
+.messages__empty-sub {
+  font-size: 13px;
+  color: #b0b0b0;
+}
+
+/* 시스템 메시지 */
+.message--system {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 16px;
+  margin: 4px 0;
+}
+
+.message__system-text {
+  font-size: 12px;
+  color: var(--msg-system-text);
+  font-style: italic;
+  background: #f0f0f0;
+  padding: 3px 12px;
+  border-radius: 10px;
+}
+
+.message__system-time {
+  font-size: 11px;
+  color: #b0b0b0;
+}
+
+/* 일반 메시지 */
+.message--me,
+.message--peer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 3px 6px;
+  border-radius: var(--radius);
+  transition: background var(--transition);
+}
+
+.message--me:hover,
+.message--peer:hover {
+  background: #f8f8f8;
+}
+
+.message__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.message--me .message__avatar {
+  background: var(--msg-me-bg);
+}
+
+.message--peer .message__avatar {
+  background: var(--msg-name-peer);
+}
+
+.message__body {
+  flex: 1;
+  min-width: 0;
+  max-width: 760px;
+}
+
+.message__header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 1px;
+}
+
+.message__name {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.message--me .message__name {
+  color: var(--msg-name-me);
+}
+
+.message--peer .message__name {
+  color: var(--msg-name-peer);
+}
+
+.message__time {
+  font-size: 10px;
+  color: var(--msg-time);
+}
+
+.message__text {
+  font-size: 14px;
+  color: #1d1c1d;
+  line-height: 1.45;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* ── 입력창 ───────────────────────────────────────────────── */
+.input-area {
+  padding: 10px 16px 14px;
+  background: var(--chat-bg);
+  border-top: 1px solid var(--header-border);
+  flex-shrink: 0;
+}
+
+.input-area__inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 5px 6px 5px 14px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.input-area__inner:focus-within {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 2px rgba(18, 100, 163, 0.1);
+}
+
+.input-area__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  color: #1d1c1d;
+  padding: 8px 0;
+}
+
+.input-area__input::placeholder {
+  color: #b0b0b0;
+}
+
+.input-area__input:disabled {
+  color: #b0b0b0;
+}
+
+/* ── 스피너 ───────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.spinner--large {
+  width: 36px;
+  height: 36px;
+  border-width: 3px;
+  border-color: rgba(18,100,163,0.2);
+  border-top-color: #1264a3;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── 반응형 ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .sidebar {
+    width: 56px;
+    min-width: 56px;
+  }
+
+  .sidebar__workspace-name span:last-child,
+  .sidebar__section-label,
+  .sidebar__room-info,
+  .sidebar__status-text,
+  .sidebar__item span:last-child {
+    display: none;
+  }
+
+  .sidebar__item {
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .sidebar__footer {
+    padding: 8px;
+  }
+
+  .sidebar__disconnect-btn {
+    font-size: 0;
+    padding: 8px;
+    text-align: center;
+  }
+
+  .sidebar__disconnect-btn::before {
+    content: '🚪';
+    font-size: 18px;
+  }
+
+  .lobby__card {
+    padding: 24px 16px;
+  }
+}
