@@ -1,8 +1,12 @@
-services:
-  - type: web
-    name: p2p-chat-webrtc
-    runtime: node
-    plan: free
-    autoDeploy: true
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+# render.yaml — 정적 사이트 배포 (서버 불필요)
+# Render Static Site 서비스로 배포하거나, dist/ 폴더를 다른 CDN에 업로드하세요.
+#
+# Render Static Site 예시:
+# services:
+#   - type: static
+#     name: p2p-chat-manual-webrtc
+#     buildCommand: npm install && npm run build
+#     staticPublishPath: dist
+
+# 참고: 이전 버전의 Node.js 서버 배포 설정은 삭제했습니다.
+# 현재 버전은 순수 정적 프런트엔드이므로 서버가 필요하지 않습니다.
