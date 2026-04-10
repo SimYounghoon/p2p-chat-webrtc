@@ -20,22 +20,34 @@ function generateId(): string {
 }
 
 /**
- * RTCSessionDescriptionInit을 Base64 JSON 문자열로 인코딩합니다.
+ * RTCSessionDescriptionInit을 JSON 문자열로 직렬화합니다.
  * ICE gathering 완료 후 localDescription 전체를 담으므로
  * 별도 candidate 교환이 필요 없습니다.
+ *
+ * 이 문자열은 encryptText() 를 통해 압축 + 암호화되므로
+ * 여기서는 base64 인코딩을 거치지 않습니다.
  */
 function encodeSignal(desc: RTCSessionDescriptionInit): string {
-  return btoa(JSON.stringify(desc));
+  return JSON.stringify(desc);
 }
 
 /**
- * Base64 문자열을 RTCSessionDescriptionInit으로 디코딩합니다.
+ * JSON 문자열(또는 하위 호환을 위한 Base64 JSON)을 RTCSessionDescriptionInit으로 디코딩합니다.
+ * - v2 이상: JSON.stringify 결과를 그대로 파싱
+ * - 구형 v1 링크/코드: atob 후 파싱 (하위 호환)
  */
 function decodeSignal(code: string): RTCSessionDescriptionInit {
+  const trimmed = code.trim();
   try {
-    return JSON.parse(atob(code.trim())) as RTCSessionDescriptionInit;
+    // v2: 순수 JSON 문자열 시도
+    return JSON.parse(trimmed) as RTCSessionDescriptionInit;
   } catch {
-    throw new Error('잘못된 코드 형식입니다. 코드를 다시 확인하세요.');
+    // v1 하위 호환: base64 디코딩 후 파싱
+    try {
+      return JSON.parse(atob(trimmed)) as RTCSessionDescriptionInit;
+    } catch {
+      throw new Error('잘못된 코드 형식입니다. 코드를 다시 확인하세요.');
+    }
   }
 }
 

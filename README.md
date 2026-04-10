@@ -2,8 +2,8 @@
 
 외부 시그널링 서버 없이 브라우저끼리 **암호화된 초대 링크 + 응답 코드 1회 교환**으로 WebRTC DataChannel 1:1 채팅을 수립하는 앱입니다.
 
-- 초대 링크: AES-GCM + PBKDF2(SHA-256) 으로 offer SDP 암호화
-- 응답 코드: 동일 암호문구로 answer SDP 암호화
+- 초대 링크: SDP JSON을 **deflate-raw 압축 후** AES-GCM + PBKDF2(SHA-256) 으로 암호화 → payload 약 70% 단축
+- 응답 코드: 동일 방식(압축 → 암호화)으로 answer SDP 처리
 - UI에 IP 직접 노출 없음
 
 ## 스택
@@ -13,7 +13,7 @@
 | 프런트엔드 | React + TypeScript + Vite |
 | P2P 통신 | WebRTC DataChannel (DTLS 암호화) |
 | 시그널링 | **수동 코드 교환** (서버 없음) |
-| 암호화 | Web Crypto API — AES-GCM 256-bit + PBKDF2-SHA256 |
+| 암호화 | Web Crypto API — AES-GCM 256-bit + PBKDF2-SHA256 + deflate-raw 압축 |
 | 스타일 | Plain CSS (Slack 스타일) |
 
 ## 프로젝트 구조
@@ -22,7 +22,7 @@
 project_test/
 ├── src/
 │   ├── lib/
-│   │   └── crypto.ts     # AES-GCM 암호화 유틸 (encryptText / decryptText)
+│   │   └── crypto.ts     # 압축(deflate-raw) + AES-GCM 암호화 유틸 (encryptText / decryptText)
 │   ├── hooks/
 │   │   └── useChat.ts    # WebRTC 수동 시그널링 훅
 │   ├── types/
@@ -73,7 +73,9 @@ npm run build    # 프로덕션 빌드 → dist/
         │  암호문구 입력 → 호스트 시작                    │
         │  createOffer() + ICE gathering 완료           │
         │  encryptText(offerSDP, passphrase)           │
-        │  → /#invite=<base64url> 링크 생성             │
+        │  ① JSON 직렬화 → deflate-raw 압축            │
+        │  ② AES-GCM 암호화 → base64url (z2:prefix)   │
+        │  → /#invite=z2:<base64url> 링크 생성         │
         │                                              │
         │  ── 초대 링크 공유 (링크 + 암호문구 전달) ──────▶│
         │                                              │  암호문구 입력
@@ -91,10 +93,22 @@ npm run build    # 프로덕션 빌드 → dist/
 
 ## 암호화 구조
 
+- **압축**: `CompressionStream('deflate-raw')` — 평문(SDP JSON)을 먼저 압축하여 payload 크기를 줄임
 - **키 파생**: PBKDF2 (iterations: 100,000, hash: SHA-256)
 - **암호화**: AES-GCM 256-bit
-- **직렬화**: `salt(16B) ‖ iv(12B) ‖ ciphertext` → base64url
+- **직렬화**: `salt(16B) ‖ iv(12B) ‖ ciphertext(compressed)` → `z2:<base64url>`
+- **버전 prefix**: `z2:` — 구형(비압축) payload와 구별, 하위 호환 유지
 - **잘못된 암호문구**: AES-GCM 인증 태그 불일치 → 즉시 오류 메시지
+
+### payload 길이 비교
+
+| 단계 | 구형 (v1) | 신형 (v2) |
+|------|-----------|-----------|
+| 시그널링 원문 | `JSON.stringify(sdp)` ~2,000자 | 동일 |
+| 직렬화 | `btoa(JSON)` ~2,700자 | JSON 직접 사용 |
+| 압축 후 | — | deflate-raw ~700 bytes |
+| 암호화 후 | ~2,728 bytes | ~728 bytes |
+| 최종 base64url | **~3,640자** | **~975자** (약 73% 감소) |
 
 ## 보안
 
