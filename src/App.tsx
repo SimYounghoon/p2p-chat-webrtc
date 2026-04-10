@@ -36,6 +36,13 @@ function extractInvitePayload(): string | null {
   return match ? match[1] : null;
 }
 
+function buildInviteUrl(payload: string): string {
+  const basePath = window.location.pathname.endsWith('/')
+    ? window.location.pathname
+    : `${window.location.pathname}/`;
+  return `${window.location.origin}${basePath}#invite=${payload}`;
+}
+
 // ─── CopyButton ─────────────────────────────────────────────────
 
 interface CopyButtonProps {
@@ -210,7 +217,7 @@ function ManualSignaling({
     setIsGeneratingLink(true);
     encryptText(offerCode, passphrase.trim())
       .then((enc) => {
-        setInviteLink(`${window.location.origin}/#invite=${enc}`);
+        setInviteLink(buildInviteUrl(enc));
         setIsGeneratingLink(false);
       })
       .catch(() => {
